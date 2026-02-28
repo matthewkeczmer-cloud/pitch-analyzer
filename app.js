@@ -14,7 +14,7 @@ const CLAUDE_MODEL = 'claude-haiku-4-5-20251001';
 const CLAUDE_API_URL = 'https://api.anthropic.com/v1/messages';
 const POLL_INTERVAL_MS = 5000;
 const MAX_TOKENS = 600;
-const MAX_HISTORY_MESSAGES = 40; // 20 exchanges
+const MAX_HISTORY_MESSAGES = 10; // 5 exchanges
 
 const TEAM_COLORS = {
   'ARI': '#A71930', 'ATL': '#CE1141', 'BAL': '#DF4601', 'BOS': '#BD3039',
