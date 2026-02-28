@@ -434,6 +434,13 @@ async function startAnalysis() {
     initFeedScreen(liveFeed, true);
   } else {
     STATE.isReplay = false;
+    // Fast-forward to current game state so we don't replay history on join
+    const allPlays = liveFeed?.liveData?.plays?.allPlays || [];
+    if (allPlays.length) {
+      const currentPlay = allPlays[allPlays.length - 1];
+      STATE.lastAtBatIndex = currentPlay?.about?.atBatIndex ?? -1;
+      STATE.lastPitchCount = getPitchEvents(currentPlay).length;
+    }
     initFeedScreen(liveFeed, false);
   }
   showScreen('feed');
