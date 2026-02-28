@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MLB Pitch Analyzer</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div id="gradient-bg"></div>
+
+  <div id="app">
+
+    <!-- Screen 1: API Key Setup -->
+    <section id="screen-apikey" class="screen active">
+      <div class="apikey-wrap">
+        <div class="logo">
+          <span class="logo-icon">⚾</span>
+          <h1 class="logo-title">Pitch Analyzer</h1>
+          <p class="logo-sub">Real-time pitching strategy powered by Claude AI</p>
+        </div>
+        <div class="card apikey-card">
+          <h2 class="card-title">Connect your Anthropic API key</h2>
+          <p class="card-desc">Your key is stored only in your browser's local storage and sent directly to Anthropic — never to any third-party server.</p>
+          <div class="input-group">
+            <label for="api-key-input" class="input-label">Anthropic API Key</label>
+            <input
+              type="password"
+              id="api-key-input"
+              class="text-input"
+              placeholder="sk-ant-api03-..."
+              autocomplete="off"
+              spellcheck="false"
+            >
+          </div>
+          <div id="apikey-error" class="error-msg" hidden></div>
+          <button id="save-key-btn" class="btn btn-primary">Save &amp; Continue</button>
+          <p class="hint-text">Get a key at <a href="https://console.anthropic.com" target="_blank" rel="noopener">console.anthropic.com</a></p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Screen 2: Game Selection -->
+    <section id="screen-games" class="screen">
+      <header class="screen-header">
+        <div class="header-row">
+          <h2 class="screen-title">Today's Games</h2>
+          <button id="change-key-btn" class="btn btn-ghost btn-sm">API Key</button>
+        </div>
+        <p id="games-date" class="screen-subtitle"></p>
+      </header>
+      <div id="games-loading" class="skeleton-list" hidden>
+        <div class="skeleton skeleton-card"></div>
+        <div class="skeleton skeleton-card"></div>
+        <div class="skeleton skeleton-card"></div>
+      </div>
+      <div id="games-empty" class="empty-state" hidden>
+        <p class="empty-icon">🏟️</p>
+        <p class="empty-title">No games scheduled today</p>
+        <p class="empty-desc">Check back during the MLB season (March–October).</p>
+      </div>
+      <div id="games-grid"></div>
+    </section>
+
+    <!-- Screen 3: Mode Selection -->
+    <section id="screen-mode" class="screen">
+      <header class="screen-header">
+        <button id="mode-back-btn" class="btn btn-ghost btn-sm back-btn">← Back</button>
+        <div id="mode-game-display" class="mode-game-display"></div>
+      </header>
+      <div class="mode-section">
+        <h2 class="section-title">Choose analysis mode</h2>
+        <div class="mode-cards">
+          <div class="mode-card selected" data-mode="per-at-bat">
+            <div class="mode-card-icon">📋</div>
+            <div class="mode-card-body">
+              <h3 class="mode-card-title">Each At-Bat</h3>
+              <p class="mode-card-desc">Get in-depth analysis after each complete at-bat — plate approach, sequencing, and decision-making breakdowns.</p>
+            </div>
+          </div>
+          <div class="mode-card" data-mode="every-pitch">
+            <div class="mode-card-icon">🎯</div>
+            <div class="mode-card-body">
+              <h3 class="mode-card-title">Every Pitch</h3>
+              <p class="mode-card-desc">Live pitch-by-pitch commentary as each ball is thrown — pitch selection, location, and immediate outcome.</p>
+            </div>
+          </div>
+        </div>
+        <button id="start-analysis-btn" class="btn btn-primary btn-full">Start Analysis</button>
+        <div id="mode-error" class="error-msg" hidden></div>
+      </div>
+    </section>
+
+    <!-- Screen 4: Analysis Feed -->
+    <section id="screen-feed" class="screen">
+      <header class="screen-header feed-header">
+        <div class="feed-header-top">
+          <button id="feed-back-btn" class="btn btn-ghost btn-sm back-btn">← Games</button>
+          <div id="feed-badge"></div>
+        </div>
+        <div id="feed-game-title" class="feed-game-title"></div>
+        <div id="feed-pitcher-line" class="feed-pitcher-line"></div>
+      </header>
+
+      <div id="scoreboard" class="scoreboard" hidden>
+        <div class="scoreboard-score">
+          <span id="sb-away-name" class="sb-team-name"></span>
+          <span id="sb-away-score" class="sb-score"></span>
+          <span class="sb-sep">–</span>
+          <span id="sb-home-score" class="sb-score"></span>
+          <span id="sb-home-name" class="sb-team-name"></span>
+        </div>
+        <div class="scoreboard-situation">
+          <span id="sb-inning" class="sb-inning"></span>
+          <span class="sb-dot-sep">·</span>
+          <span id="sb-outs" class="sb-outs"></span>
+          <span class="sb-dot-sep">·</span>
+          <span id="sb-count" class="sb-count"></span>
+        </div>
+        <div id="sb-runners" class="sb-runners"></div>
+      </div>
+
+      <div id="pitcher-stats-btn-wrap" class="pitcher-stats-btn-wrap" hidden>
+        <button id="pitcher-stats-btn" class="btn btn-ghost btn-sm">📊 Pitcher Stats</button>
+      </div>
+
+      <!-- Pitcher Stats Bottom Sheet -->
+      <div id="stats-sheet-overlay" class="sheet-overlay" hidden></div>
+      <div id="stats-sheet" class="stats-sheet" hidden>
+        <div class="stats-sheet-header">
+          <h3 id="stats-sheet-name" class="stats-sheet-name"></h3>
+          <button id="stats-sheet-close" class="btn btn-ghost btn-sm">✕</button>
+        </div>
+        <div id="stats-sheet-grid" class="stats-sheet-grid"></div>
+      </div>
+
+      <div id="feed-status" class="feed-status"></div>
+
+      <div id="analysis-feed" class="analysis-feed"></div>
+
+      <!-- Replay controls -->
+      <div id="replay-controls" class="replay-controls" hidden>
+        <button id="next-play-btn" class="btn btn-primary">Next Play →</button>
+        <p id="replay-progress" class="replay-progress"></p>
+      </div>
+    </section>
+
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

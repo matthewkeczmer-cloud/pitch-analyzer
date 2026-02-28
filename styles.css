@@ -1,0 +1,653 @@
+/* ============================================================
+   CSS Custom Properties — Design System Tokens
+   ============================================================ */
+:root {
+  --bg: #0d1117;
+  --card: #161b22;
+  --card-hover: #1c2330;
+  --border: #30363d;
+  --border-subtle: #21262d;
+  --primary: #58a6ff;
+  --primary-dim: #1f4068;
+  --success: #3fb950;
+  --success-dim: #1a3a22;
+  --warning: #d29922;
+  --error: #f85149;
+  --error-dim: #3d1a1a;
+  --text-primary: #e6edf3;
+  --text-secondary: #8b949e;
+  --text-muted: #6e7681;
+  --font-heading: 'Playfair Display', Georgia, serif;
+  --font-body: 'Inter', system-ui, -apple-system, sans-serif;
+  --radius: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --transition: 0.2s ease;
+  --shadow: 0 4px 16px rgba(0,0,0,0.4);
+}
+
+/* ============================================================
+   Reset & Base
+   ============================================================ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: var(--bg);
+  color: var(--text-primary);
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.6;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+a { color: var(--primary); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+button { cursor: pointer; font-family: inherit; }
+
+/* ============================================================
+   Background Gradient Layer
+   ============================================================ */
+#gradient-bg {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  transition: background 0.8s ease;
+}
+
+/* ============================================================
+   App Container
+   ============================================================ */
+#app {
+  max-width: 700px;
+  margin: 0 auto;
+  padding: 0 16px 80px;
+}
+
+/* ============================================================
+   Screen Router
+   ============================================================ */
+.screen { display: none; }
+.screen.active { display: block; }
+
+/* ============================================================
+   Buttons
+   ============================================================ */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px 18px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  font-size: 14px;
+  font-weight: 500;
+  font-family: inherit;
+  background: transparent;
+  color: var(--text-primary);
+  transition: background var(--transition), border-color var(--transition), opacity var(--transition);
+  white-space: nowrap;
+}
+.btn:hover { background: var(--card-hover); border-color: var(--text-muted); }
+.btn:active { opacity: 0.75; }
+.btn:disabled { opacity: 0.45; cursor: not-allowed; }
+
+.btn-primary {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: #0d1117;
+  font-weight: 600;
+}
+.btn-primary:hover { background: #79b8ff; border-color: #79b8ff; }
+
+.btn-ghost { background: transparent; border-color: transparent; }
+.btn-ghost:hover { background: var(--card); border-color: var(--border); }
+
+.btn-sm { padding: 6px 12px; font-size: 13px; }
+.btn-full { width: 100%; padding: 13px; font-size: 15px; }
+
+/* ============================================================
+   Cards
+   ============================================================ */
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+}
+
+/* ============================================================
+   Screen Headers
+   ============================================================ */
+.screen-header {
+  padding: 24px 0 16px;
+}
+.header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.screen-title {
+  font-family: var(--font-heading);
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+.screen-subtitle {
+  color: var(--text-secondary);
+  font-size: 14px;
+  margin-top: 4px;
+}
+.section-title {
+  font-family: var(--font-heading);
+  font-size: 20px;
+  margin-bottom: 16px;
+}
+.back-btn { color: var(--text-secondary); }
+
+/* ============================================================
+   Screen 1: API Key
+   ============================================================ */
+.apikey-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 60px;
+  gap: 32px;
+}
+.logo { text-align: center; }
+.logo-icon { font-size: 48px; display: block; margin-bottom: 12px; }
+.logo-title {
+  font-family: var(--font-heading);
+  font-size: 32px;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+.logo-sub { color: var(--text-secondary); font-size: 15px; }
+
+.apikey-card { width: 100%; max-width: 480px; }
+.card-title {
+  font-family: var(--font-heading);
+  font-size: 20px;
+  margin-bottom: 8px;
+}
+.card-desc { color: var(--text-secondary); font-size: 13px; margin-bottom: 20px; line-height: 1.5; }
+
+.input-group { margin-bottom: 16px; }
+.input-label { display: block; font-size: 13px; font-weight: 500; color: var(--text-secondary); margin-bottom: 6px; }
+.text-input {
+  width: 100%;
+  padding: 10px 14px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text-primary);
+  font-family: monospace;
+  font-size: 14px;
+  transition: border-color var(--transition);
+  outline: none;
+}
+.text-input:focus { border-color: var(--primary); }
+.text-input::placeholder { color: var(--text-muted); }
+
+.error-msg {
+  color: var(--error);
+  font-size: 13px;
+  background: var(--error-dim);
+  border: 1px solid var(--error);
+  border-radius: var(--radius);
+  padding: 10px 14px;
+  margin-bottom: 14px;
+}
+.hint-text { color: var(--text-muted); font-size: 12px; text-align: center; margin-top: 14px; }
+
+/* ============================================================
+   Screen 2: Game Cards
+   ============================================================ */
+#games-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-bottom: 24px;
+}
+
+.game-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 16px 20px;
+  cursor: pointer;
+  transition: background var(--transition), border-color var(--transition), transform 0.15s ease;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 12px;
+}
+.game-card:hover { background: var(--card-hover); border-color: var(--text-muted); transform: translateY(-1px); }
+.game-card:active { transform: translateY(0); }
+.game-card.disabled { opacity: 0.5; cursor: not-allowed; pointer-events: none; }
+
+.game-matchup { display: flex; align-items: center; gap: 12px; }
+.game-teams {
+  font-size: 17px;
+  font-weight: 600;
+  font-family: var(--font-heading);
+  color: var(--text-primary);
+}
+.game-score {
+  font-size: 15px;
+  color: var(--text-secondary);
+  font-variant-numeric: tabular-nums;
+}
+
+.game-meta { text-align: right; }
+.game-time { font-size: 13px; color: var(--text-secondary); margin-bottom: 4px; }
+
+/* Status badges */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding: 3px 8px;
+  border-radius: 20px;
+}
+.badge--live { background: var(--success-dim); color: var(--success); border: 1px solid var(--success); }
+.badge--final { background: var(--border-subtle); color: var(--text-muted); border: 1px solid var(--border); }
+.badge--pre { background: var(--primary-dim); color: var(--primary); border: 1px solid var(--primary); }
+.badge--postponed { background: var(--error-dim); color: var(--error); border: 1px solid var(--error); }
+
+.live-dot {
+  width: 6px; height: 6px;
+  background: var(--success);
+  border-radius: 50%;
+  animation: pulse-dot 1.4s ease infinite;
+}
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(0.7); }
+}
+
+/* Skeleton loading */
+.skeleton-list { display: flex; flex-direction: column; gap: 10px; }
+.skeleton {
+  background: linear-gradient(90deg, var(--card) 25%, var(--card-hover) 50%, var(--card) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.4s infinite;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border);
+}
+.skeleton-card { height: 76px; }
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* Empty state */
+.empty-state { text-align: center; padding: 60px 20px; }
+.empty-icon { font-size: 48px; margin-bottom: 12px; }
+.empty-title { font-size: 18px; font-weight: 600; margin-bottom: 8px; }
+.empty-desc { color: var(--text-secondary); font-size: 14px; }
+
+/* ============================================================
+   Screen 3: Mode Selection
+   ============================================================ */
+.mode-game-display {
+  text-align: center;
+  padding: 8px 0 4px;
+}
+.mode-game-teams {
+  font-family: var(--font-heading);
+  font-size: 22px;
+  font-weight: 700;
+}
+.mode-game-score { color: var(--text-secondary); font-size: 14px; margin-top: 2px; }
+
+.mode-section { padding-top: 8px; }
+
+.mode-cards { display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px; }
+.mode-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  background: var(--card);
+  border: 2px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 18px 20px;
+  cursor: pointer;
+  transition: border-color var(--transition), background var(--transition);
+}
+.mode-card:hover { background: var(--card-hover); border-color: var(--text-muted); }
+.mode-card.selected { border-color: var(--primary); background: var(--primary-dim); }
+.mode-card-icon { font-size: 28px; flex-shrink: 0; margin-top: 2px; }
+.mode-card-title { font-size: 16px; font-weight: 600; margin-bottom: 4px; }
+.mode-card-desc { font-size: 13px; color: var(--text-secondary); line-height: 1.5; }
+
+/* ============================================================
+   Screen 4: Feed Header
+   ============================================================ */
+.feed-header {
+  position: sticky;
+  top: 0;
+  background: rgba(13,17,23,0.92);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  z-index: 10;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border-subtle);
+  margin-bottom: 0;
+}
+.feed-header-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 16px;
+  margin-bottom: 6px;
+}
+.feed-game-title {
+  font-family: var(--font-heading);
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1.3;
+}
+.feed-pitcher-line {
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin-top: 3px;
+}
+
+/* ============================================================
+   Scoreboard
+   ============================================================ */
+.scoreboard {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 14px 20px;
+  margin: 12px 0 8px;
+}
+.scoreboard-score {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  font-size: 18px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  margin-bottom: 6px;
+}
+.sb-team-name { font-size: 14px; color: var(--text-secondary); font-weight: 500; }
+.sb-score { font-size: 22px; font-weight: 700; }
+.sb-sep { color: var(--text-muted); }
+.scoreboard-situation {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+.sb-dot-sep { color: var(--text-muted); }
+.sb-inning { font-weight: 600; color: var(--text-primary); }
+.sb-runners {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  margin-top: 8px;
+}
+.runner-base {
+  width: 10px; height: 10px;
+  border: 2px solid var(--border);
+  transform: rotate(45deg);
+  border-radius: 2px;
+}
+.runner-base.occupied { background: var(--warning); border-color: var(--warning); }
+
+/* ============================================================
+   Pitcher Stats Button + Bottom Sheet
+   ============================================================ */
+.pitcher-stats-btn-wrap { padding: 6px 0 10px; }
+
+.sheet-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.6);
+  z-index: 40;
+}
+.stats-sheet {
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-top-left-radius: var(--radius-xl);
+  border-top-right-radius: var(--radius-xl);
+  padding: 20px 20px 40px;
+  z-index: 50;
+  max-height: 60vh;
+  overflow-y: auto;
+  max-width: 700px;
+  margin: 0 auto;
+}
+.stats-sheet-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+.stats-sheet-name {
+  font-family: var(--font-heading);
+  font-size: 18px;
+  font-weight: 700;
+}
+.stats-sheet-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+.stat-tile {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 12px;
+  text-align: center;
+}
+.stat-tile-label { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px; }
+.stat-tile-value { font-size: 20px; font-weight: 700; font-variant-numeric: tabular-nums; }
+
+/* ============================================================
+   Feed Status
+   ============================================================ */
+.feed-status {
+  text-align: center;
+  font-size: 13px;
+  color: var(--text-secondary);
+  padding: 12px 0 4px;
+  min-height: 36px;
+}
+.feed-status.waiting { color: var(--text-muted); font-style: italic; }
+.feed-status.polling::before {
+  content: '';
+  display: inline-block;
+  width: 6px; height: 6px;
+  background: var(--success);
+  border-radius: 50%;
+  margin-right: 6px;
+  animation: pulse-dot 1.4s ease infinite;
+  vertical-align: middle;
+}
+
+/* ============================================================
+   Analysis Feed
+   ============================================================ */
+.analysis-feed {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding-bottom: 20px;
+}
+
+.feed-entry {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  transition: border-color var(--transition);
+}
+.feed-entry--streaming { border-color: var(--primary); }
+
+.feed-entry-header {
+  padding: 14px 16px 10px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+.feed-entry-headline {
+  font-family: var(--font-heading);
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1.3;
+  margin-bottom: 6px;
+}
+.feed-count-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+.count-dots { display: inline-flex; gap: 4px; align-items: center; }
+.count-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  border: 1.5px solid var(--border);
+  background: transparent;
+}
+.count-dot.filled-ball { background: var(--success); border-color: var(--success); }
+.count-dot.filled-strike { background: var(--error); border-color: var(--error); }
+.count-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); }
+
+/* Zone + Context toggle buttons */
+.feed-entry-toggles {
+  display: flex;
+  gap: 8px;
+  padding: 8px 16px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+.toggle-btn {
+  font-size: 12px;
+  color: var(--text-muted);
+  background: none;
+  border: 1px solid var(--border-subtle);
+  border-radius: 20px;
+  padding: 3px 10px;
+  cursor: pointer;
+  font-family: inherit;
+  transition: color var(--transition), border-color var(--transition);
+}
+.toggle-btn:hover { color: var(--text-secondary); border-color: var(--border); }
+
+/* Zone grid */
+.zone-wrap { padding: 12px 16px; border-bottom: 1px solid var(--border-subtle); }
+.zone-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  grid-template-rows: repeat(5, 28px);
+  gap: 3px;
+  max-width: 200px;
+  margin: 0 auto;
+}
+.zone-cell {
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  background: var(--bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  color: var(--text-muted);
+}
+.zone-cell.active-strike { background: var(--primary-dim); border-color: var(--primary); color: var(--primary); font-weight: 600; }
+.zone-cell.active-ball { background: rgba(210,153,34,0.15); border-color: var(--warning); color: var(--warning); font-weight: 600; }
+.zone-cell.empty { border: none; background: transparent; }
+
+/* Context block */
+.context-wrap { padding: 10px 16px; border-bottom: 1px solid var(--border-subtle); }
+.context-block {
+  font-family: monospace;
+  font-size: 11px;
+  color: var(--text-muted);
+  line-height: 1.6;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+/* Analysis text */
+.feed-entry-body {
+  padding: 14px 16px;
+  font-size: 14px;
+  line-height: 1.7;
+  color: var(--text-primary);
+}
+.feed-entry-body strong { color: var(--text-primary); font-weight: 600; }
+.feed-entry-body em { color: var(--text-secondary); font-style: italic; }
+
+/* Streaming cursor */
+@keyframes cursor-blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+.streaming-cursor::after {
+  content: '|';
+  color: var(--primary);
+  animation: cursor-blink 0.7s steps(1) infinite;
+  margin-left: 1px;
+}
+
+/* Final score card */
+.final-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  text-align: center;
+  margin-top: 8px;
+}
+.final-card-label { font-size: 12px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted); margin-bottom: 10px; }
+.final-card-score {
+  font-family: var(--font-heading);
+  font-size: 28px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+.final-card-teams { font-size: 14px; color: var(--text-secondary); }
+
+/* ============================================================
+   Replay Controls
+   ============================================================ */
+.replay-controls {
+  position: sticky;
+  bottom: 0;
+  padding: 14px 0 20px;
+  background: linear-gradient(to top, var(--bg) 70%, transparent);
+  text-align: center;
+}
+.replay-progress { font-size: 12px; color: var(--text-muted); margin-top: 8px; }
+
+/* ============================================================
+   Responsive — small phones
+   ============================================================ */
+@media (max-width: 400px) {
+  #app { padding: 0 12px 60px; }
+  .logo-title { font-size: 26px; }
+  .screen-title { font-size: 22px; }
+  .game-card { padding: 14px 14px; }
+  .game-teams { font-size: 15px; }
+  .stats-sheet-grid { grid-template-columns: repeat(2, 1fr); }
+  .feed-entry-headline { font-size: 15px; }
+}
