@@ -20,12 +20,16 @@
         <div class="logo">
           <span class="logo-icon">⚾</span>
           <h1 class="logo-title">Pitch Analyzer</h1>
-          <p class="logo-sub">Real-time pitching strategy powered by Claude AI</p>
+          <p class="logo-sub">Real-time pitching strategy powered by AI</p>
         </div>
         <div class="card apikey-card">
-          <h2 class="card-title">Connect your Anthropic API key</h2>
-          <p class="card-desc">Your key is stored only in your browser's local storage and sent directly to Anthropic — never to any third-party server.</p>
-          <div class="input-group">
+          <h2 class="card-title">Choose your AI provider</h2>
+          <p class="card-desc">Your key is stored only in your browser's local storage and sent directly to the provider — never to any third-party server.</p>
+          <div class="provider-toggle">
+            <button class="provider-btn" data-provider="anthropic">Claude · Anthropic</button>
+            <button class="provider-btn" data-provider="gemini">Gemini · Google Free</button>
+          </div>
+          <div id="anthropic-key-group" class="input-group">
             <label for="api-key-input" class="input-label">Anthropic API Key</label>
             <input
               type="password"
@@ -35,10 +39,22 @@
               autocomplete="off"
               spellcheck="false"
             >
+            <p class="hint-text" style="text-align:left;margin-top:8px;margin-bottom:0">Get a key at <a href="https://console.anthropic.com" target="_blank" rel="noopener">console.anthropic.com</a></p>
+          </div>
+          <div id="gemini-key-group" class="input-group" hidden>
+            <label for="gemini-key-input" class="input-label">Google AI API Key</label>
+            <input
+              type="password"
+              id="gemini-key-input"
+              class="text-input"
+              placeholder="AIza..."
+              autocomplete="off"
+              spellcheck="false"
+            >
+            <p class="hint-text" style="text-align:left;margin-top:8px;margin-bottom:0">Free tier at <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener">aistudio.google.com</a></p>
           </div>
           <div id="apikey-error" class="error-msg" hidden></div>
           <button id="save-key-btn" class="btn btn-primary">Save &amp; Continue</button>
-          <p class="hint-text">Get a key at <a href="https://console.anthropic.com" target="_blank" rel="noopener">console.anthropic.com</a></p>
         </div>
       </div>
     </section>

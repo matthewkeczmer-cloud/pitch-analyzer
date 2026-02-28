@@ -12,6 +12,8 @@
 const MLB_API_BASE = 'https://statsapi.mlb.com/api/v1';
 const CLAUDE_MODEL = 'claude-haiku-4-5-20251001';
 const CLAUDE_API_URL = 'https://api.anthropic.com/v1/messages';
+const GEMINI_MODEL = 'gemini-2.0-flash';
+const GEMINI_API_BASE = 'https://generativelanguage.googleapis.com/v1beta/models';
 const POLL_INTERVAL_MS = 5000;
 const MAX_TOKENS = 600;
 const MAX_HISTORY_MESSAGES = 10; // 5 exchanges
@@ -51,6 +53,8 @@ const ZONE_LAYOUT = [
 
 const STATE = {
   apiKey: localStorage.getItem('mlb_analyzer_apikey') || '',
+  geminiApiKey: localStorage.getItem('mlb_analyzer_gemini_apikey') || '',
+  provider: localStorage.getItem('mlb_analyzer_provider') || 'anthropic',
 
   selectedGame: null,
   analysisMode: 'per-at-bat',
@@ -182,28 +186,60 @@ function clearGradientBackground() {
    ============================================================ */
 
 function initApiKeyScreen() {
-  const input = document.getElementById('api-key-input');
+  const anthropicInput = document.getElementById('api-key-input');
+  const geminiInput = document.getElementById('gemini-key-input');
   const btn = document.getElementById('save-key-btn');
   const errorEl = document.getElementById('apikey-error');
+  const anthropicGroup = document.getElementById('anthropic-key-group');
+  const geminiGroup = document.getElementById('gemini-key-group');
 
-  // Pre-fill if key exists (e.g. user navigated back)
-  if (STATE.apiKey) input.value = STATE.apiKey;
+  // Pre-fill saved values
+  if (STATE.apiKey) anthropicInput.value = STATE.apiKey;
+  if (STATE.geminiApiKey) geminiInput.value = STATE.geminiApiKey;
+
+  function selectProvider(provider) {
+    STATE.provider = provider;
+    document.querySelectorAll('.provider-btn').forEach(b => {
+      b.classList.toggle('active', b.dataset.provider === provider);
+    });
+    anthropicGroup.hidden = provider !== 'anthropic';
+    geminiGroup.hidden = provider !== 'gemini';
+    hideError(errorEl);
+  }
+
+  document.querySelectorAll('.provider-btn').forEach(b => {
+    b.onclick = () => selectProvider(b.dataset.provider);
+  });
+
+  selectProvider(STATE.provider);
 
   function handleSave() {
-    const key = input.value.trim();
-    if (!key.startsWith('sk-ant-')) {
-      showError(errorEl, 'Key must start with "sk-ant-". Check your Anthropic console.');
-      return;
-    }
-    STATE.apiKey = key;
-    localStorage.setItem('mlb_analyzer_apikey', key);
     hideError(errorEl);
+    if (STATE.provider === 'anthropic') {
+      const key = anthropicInput.value.trim();
+      if (!key.startsWith('sk-ant-')) {
+        showError(errorEl, 'Anthropic key must start with "sk-ant-". Check your console.');
+        return;
+      }
+      STATE.apiKey = key;
+      localStorage.setItem('mlb_analyzer_apikey', key);
+    } else {
+      const key = geminiInput.value.trim();
+      if (!key.startsWith('AIza')) {
+        showError(errorEl, 'Google AI key must start with "AIza". Check AI Studio.');
+        return;
+      }
+      STATE.geminiApiKey = key;
+      localStorage.setItem('mlb_analyzer_gemini_apikey', key);
+    }
+    localStorage.setItem('mlb_analyzer_provider', STATE.provider);
     initGamesScreen();
     showScreen('games');
   }
 
-  btn.addEventListener('click', handleSave);
-  input.addEventListener('keydown', e => { if (e.key === 'Enter') handleSave(); });
+  btn.onclick = handleSave;
+  anthropicInput.onkeydown = e => { if (e.key === 'Enter') handleSave(); };
+  geminiInput.onkeydown = e => { if (e.key === 'Enter') handleSave(); };
 }
 
 /* ============================================================
@@ -222,6 +258,7 @@ async function initGamesScreen() {
   hideEl(emptyEl);
 
   document.getElementById('change-key-btn').onclick = () => {
+    initApiKeyScreen();
     showScreen('apikey');
   };
 
@@ -686,7 +723,7 @@ async function processNewAtBats(allPlays, liveFeed) {
   for (const play of newCompleted) {
     if (STATE.isStreaming) break;
     const ctx = buildAtBatContext(play, liveFeed);
-    await analyzeWithClaude(ctx, 'per-at-bat');
+    await analyzeWithAI(ctx, 'per-at-bat');
     STATE.lastAtBatIndex = play.about.atBatIndex;
     STATE.lastPitchCount = 0;
   }
@@ -710,7 +747,7 @@ async function processNewPitches(allPlays, liveFeed) {
     for (let i = startIdx; i < pitches.length; i++) {
       if (STATE.isStreaming) return;
       const ctx = buildPitchContext(play, pitches[i], liveFeed, i);
-      await analyzeWithClaude(ctx, 'every-pitch');
+      await analyzeWithAI(ctx, 'every-pitch');
       await delay(150);
     }
     STATE.lastAtBatIndex = play.about.atBatIndex;
@@ -731,7 +768,7 @@ async function processNewPitches(allPlays, liveFeed) {
       if (STATE.isStreaming) return;
       const pitchIdx = pitches.indexOf(pitch);
       const ctx = buildPitchContext(currentPlay, pitch, liveFeed, pitchIdx);
-      await analyzeWithClaude(ctx, 'every-pitch');
+      await analyzeWithAI(ctx, 'every-pitch');
       await delay(150);
     }
 
@@ -923,7 +960,7 @@ function buildPitchHeadline(pitchType, speed, spin, result) {
 }
 
 /* ============================================================
-   17. CLAUDE AI INTEGRATION
+   17. AI INTEGRATION (Anthropic Claude + Google Gemini)
    ============================================================ */
 
 function buildSystemPrompt() {
@@ -943,41 +980,67 @@ function buildUserMessage(ctx) {
   return ctx.raw;
 }
 
-async function analyzeWithClaude(ctx, mode) {
+async function callAnthropic(messages) {
+  return fetch(CLAUDE_API_URL, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-api-key': STATE.apiKey,
+      'anthropic-version': '2023-06-01',
+      'anthropic-dangerous-direct-browser-calls': 'true',
+    },
+    body: JSON.stringify({
+      model: CLAUDE_MODEL,
+      max_tokens: MAX_TOKENS,
+      stream: true,
+      system: buildSystemPrompt(),
+      messages,
+    }),
+  });
+}
+
+async function callGemini(messages) {
+  // Convert Anthropic-format history to Gemini format
+  const contents = messages.map(msg => ({
+    role: msg.role === 'assistant' ? 'model' : 'user',
+    parts: [{ text: msg.content }],
+  }));
+
+  const url = `${GEMINI_API_BASE}/${GEMINI_MODEL}:streamGenerateContent?alt=sse&key=${STATE.geminiApiKey}`;
+  return fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      system_instruction: { parts: [{ text: buildSystemPrompt() }] },
+      contents,
+      generationConfig: { maxOutputTokens: MAX_TOKENS },
+    }),
+  });
+}
+
+async function analyzeWithAI(ctx, mode) {
   STATE.isStreaming = true;
   const entryEl = renderStreamingEntry(ctx);
 
-  // Add user message to history
   const userMsg = { role: 'user', content: buildUserMessage(ctx) };
-
-  // Trim history before building messages
   const recentHistory = STATE.conversationHistory.slice(-MAX_HISTORY_MESSAGES);
-
   const messages = [...recentHistory, userMsg];
 
   let assistantText = '';
 
   try {
-    const res = await fetch(CLAUDE_API_URL, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': STATE.apiKey,
-        'anthropic-version': '2023-06-01',
-        'anthropic-dangerous-direct-browser-calls': 'true',
-      },
-      body: JSON.stringify({
-        model: CLAUDE_MODEL,
-        max_tokens: MAX_TOKENS,
-        stream: true,
-        system: buildSystemPrompt(),
-        messages,
-      }),
-    });
+    const isGemini = STATE.provider === 'gemini';
+    const res = isGemini ? await callGemini(messages) : await callAnthropic(messages);
 
-    if (res.status === 401) {
+    if (!isGemini && res.status === 401) {
       setFeedStatus('', '');
-      finalizeEntry(entryEl, '⚠️ Invalid API key — check your key in Settings.');
+      finalizeEntry(entryEl, '⚠️ Invalid Anthropic API key — check your key in Settings.');
+      stopPolling();
+      return;
+    }
+    if (isGemini && (res.status === 400 || res.status === 403)) {
+      setFeedStatus('', '');
+      finalizeEntry(entryEl, '⚠️ Invalid Google AI key — check your key in Settings.');
       stopPolling();
       return;
     }
@@ -985,13 +1048,13 @@ async function analyzeWithClaude(ctx, mode) {
     if (!res.ok) {
       const errText = await res.text().catch(() => '');
       finalizeEntry(entryEl, `API error ${res.status}${errText ? ': ' + errText.slice(0, 100) : ''}`);
-      // Don't append failed exchange to history
       return;
     }
 
-    assistantText = await streamClaudeResponse(res, entryEl);
+    assistantText = isGemini
+      ? await streamGeminiResponse(res, entryEl)
+      : await streamClaudeResponse(res, entryEl);
 
-    // Append successful exchange to history
     STATE.conversationHistory.push(userMsg);
     STATE.conversationHistory.push({ role: 'assistant', content: assistantText });
 
@@ -1000,6 +1063,47 @@ async function analyzeWithClaude(ctx, mode) {
   } finally {
     STATE.isStreaming = false;
   }
+}
+
+async function streamGeminiResponse(response, entryEl) {
+  const reader = response.body.getReader();
+  const decoder = new TextDecoder();
+  let buffer = '';
+  let fullText = '';
+  const bodyEl = entryEl.querySelector('.feed-entry-body');
+
+  try {
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+
+      buffer += decoder.decode(value, { stream: true });
+      const lines = buffer.split('\n');
+      buffer = lines.pop();
+
+      for (const line of lines) {
+        if (!line.startsWith('data: ')) continue;
+        const data = line.slice(6).trim();
+        if (data === '[DONE]') break;
+        try {
+          const parsed = JSON.parse(data);
+          const text = parsed?.candidates?.[0]?.content?.parts?.[0]?.text;
+          if (text) {
+            fullText += text;
+            bodyEl.innerHTML = renderMarkdown(fullText);
+            bodyEl.classList.add('streaming-cursor');
+            scrollFeedToBottom();
+          }
+        } catch {
+          // Malformed JSON chunk — skip
+        }
+      }
+    }
+  } finally {
+    reader.releaseLock();
+  }
+
+  return fullText;
 }
 
 async function streamClaudeResponse(response, entryEl) {
@@ -1305,12 +1409,12 @@ async function handleNextPlay() {
   let ctx;
   if (STATE.analysisMode === 'per-at-bat') {
     ctx = buildAtBatContext(play, miniLiveFeed);
-    await analyzeWithClaude(ctx, 'per-at-bat');
+    await analyzeWithAI(ctx, 'per-at-bat');
   } else {
     const pitches = getPitchEvents(play);
     for (let i = 0; i < pitches.length; i++) {
       ctx = buildPitchContext(play, pitches[i], miniLiveFeed, i);
-      await analyzeWithClaude(ctx, 'every-pitch');
+      await analyzeWithAI(ctx, 'every-pitch');
       if (i < pitches.length - 1) await delay(200);
     }
   }
@@ -1362,11 +1466,12 @@ function delay(ms) {
    ============================================================ */
 
 document.addEventListener('DOMContentLoaded', () => {
-  if (STATE.apiKey) {
+  initApiKeyScreen();
+  const hasKey = STATE.provider === 'gemini' ? !!STATE.geminiApiKey : !!STATE.apiKey;
+  if (hasKey) {
     initGamesScreen();
     showScreen('games');
   } else {
-    initApiKeyScreen();
     showScreen('apikey');
   }
 });

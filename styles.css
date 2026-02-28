@@ -177,6 +177,30 @@ button { cursor: pointer; font-family: inherit; }
 }
 .card-desc { color: var(--text-secondary); font-size: 13px; margin-bottom: 20px; line-height: 1.5; }
 
+/* Provider toggle (segmented control) */
+.provider-toggle {
+  display: flex;
+  margin-bottom: 20px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+.provider-btn {
+  flex: 1;
+  padding: 9px 12px;
+  font-size: 13px;
+  font-weight: 500;
+  font-family: inherit;
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: background var(--transition), color var(--transition);
+}
+.provider-btn:hover { background: var(--card-hover); color: var(--text-primary); }
+.provider-btn.active { background: var(--primary); color: #0d1117; font-weight: 600; }
+.provider-btn + .provider-btn { border-left: 1px solid var(--border); }
+
 .input-group { margin-bottom: 16px; }
 .input-label { display: block; font-size: 13px; font-weight: 500; color: var(--text-secondary); margin-bottom: 6px; }
 .text-input {
